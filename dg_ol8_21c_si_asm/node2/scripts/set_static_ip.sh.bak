@@ -1,0 +1,12 @@
+#!/bin/bash
+static_ip=192.168.68.112
+subnet=$(ip a | grep inet | grep eth1 | awk '{print $2}')
+router=$(ip route show | grep eth1 | grep dhcp | awk '{print $3}')
+sz=$(echo $subnet | awk -F / '{print $2}')
+UUID=$(nmcli connection show | grep eth1 | awk '{print $3}')
+
+
+nmcli con mod $UUID ipv4.addresses $static_ip/$sz
+nmcli con mod $UUID ipv4.gateway $router
+nmcli con mod $UUID ipv4.method manual
+nmcli con up $UUID

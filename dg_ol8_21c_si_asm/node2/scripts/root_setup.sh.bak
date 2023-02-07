@@ -1,0 +1,6 @@
+sh /vagrant/scripts/prepare_disks.sh
+dnf install -y perl
+dnf install -y net-tools
+sh /vagrant/scripts/adduser.sh
+#sh /vagrant/scripts/set_static_ip.sh
+
