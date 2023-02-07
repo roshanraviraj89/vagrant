@@ -1,0 +1,80 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+#variables
+var_disk1_name     = 'E:\vagrant\Ansible-DEMO\dg_ol8.7_21c_si_asm\node2\Disks\v_ol8_21c_dg_node2_asm_u01.vdi'
+var_disk1_size     = 100
+var_disk2_name     = 'E:\vagrant\Ansible-DEMO\dg_ol8.7_21c_si_asm\node2\Disks\v_ol8_21c_dg_node2_asm_datadisk1.vdi'
+var_disk2_size     = 50
+var_disk3_name     = 'E:\vagrant\Ansible-DEMO\dg_ol8.7_21c_si_asm\node2\Disks\v_ol8_21c_dg_node2_asm_fradisk1.vdi'
+var_disk3_size     = 50
+var_disk4_name     = 'E:\vagrant\Ansible-DEMO\dg_ol8.7_21c_si_asm\node2\Disks\v_ol8_21c_dg_node2_asm_ocrdisk1.vdi'
+var_disk4_size     = 12
+var_disk5_name     = 'E:\vagrant\Ansible-DEMO\dg_ol8.7_21c_si_asm\node2\Disks\v_ol8_21c_dg_node2_asm_u05.vdi'
+var_disk5_size     = 100
+var_non_rotational = 'on'
+
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "oraclelinux/8"
+  config.vm.box_url = "https://oracle.github.io/vagrant-projects/boxes/oraclelinux/8.json"
+  #config.vm.box = "generic/oracle8"
+  config.vm.hostname = "bath-node2.localdomain"
+  config.vm.network "public_network", ip: "192.168.68.128"
+  #config.vm.network "public_network", bridge: "TP-Link Wireless USB Adapter"
+  config.vm.synced_folder ".", "/vagrant"
+
+ 
+   config.vm.provider "virtualbox" do |vb|
+  #   # Display the VirtualBox GUI when booting the machine
+     vb.gui = true
+  #
+  #   # Customize the amount of memory on the VM:
+     vb.memory = "8192"
+	 vb.cpus = 2
+	 vb.name = "v_demo_dg_ol8_21c_node2_asm"
+	 
+	 vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', '0', '--nonrotational', var_non_rotational]
+
+    unless File.exist?(var_disk1_name)
+      vb.customize ['createhd', '--filename', var_disk1_name, '--size', var_disk1_size * 1024]
+    end
+    vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--nonrotational', var_non_rotational, '--medium', var_disk1_name]
+
+    unless File.exist?(var_disk2_name)
+      vb.customize ['createhd', '--filename', var_disk2_name, '--size', var_disk2_size * 1024]
+    end
+    vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 2, '--device', 0, '--type', 'hdd', '--nonrotational', var_non_rotational, '--medium', var_disk2_name]
+    
+	unless File.exist?(var_disk3_name)
+      vb.customize ['createhd', '--filename', var_disk3_name, '--size', var_disk3_size * 1024]
+    end
+    vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 3, '--device', 0, '--type', 'hdd', '--nonrotational', var_non_rotational, '--medium', var_disk3_name]
+	
+	unless File.exist?(var_disk4_name)
+      vb.customize ['createhd', '--filename', var_disk4_name, '--size', var_disk4_size * 1024]
+    end
+    vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 4, '--device', 0, '--type', 'hdd', '--nonrotational', var_non_rotational, '--medium', var_disk4_name]
+	
+	unless File.exist?(var_disk5_name)
+      vb.customize ['createhd', '--filename', var_disk5_name, '--size', var_disk5_size * 1024]
+    end
+    vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 5, '--device', 0, '--type', 'hdd', '--nonrotational', var_non_rotational, '--medium', var_disk5_name]
+	 
+   end
+  #
+  # View the documentation for the provider you are using for more
+  # information on available options.
+
+  # Enable provisioning with a shell script. Additional provisioners such as
+  # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
+  # documentation for more information about their specific syntax and use.
+  # config.vm.provision "shell", inline: <<-SHELL
+  #   apt-get update
+  #   apt-get install -y apache2
+  # SHELL
+   config.vm.provision "shell", inline: <<-SHELL
+    sh /vagrant/scripts/setup.sh
+  SHELL
+end
