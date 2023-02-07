@@ -1,0 +1,54 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+#variables
+var_disk1_name     = 'E:\vagrant\Ansible-DEMO\oracle8.6_no_asm\Disks\v_ol8_21c_nonasm_u01.vdi'
+var_disk1_size      = 30
+var_disk2_name     = 'E:\vagrant\Ansible-DEMO\oracle8.6_no_asm\Disks\v_ol8_21c_nonasm_u02.vdi'
+var_disk2_size      = 50
+var_disk3_name     = 'E:\vagrant\Ansible-DEMO\oracle8.6_no_asm\Disks\v_ol8_21c_nonasm_u03.vdi'
+var_disk3_size      = 50
+var_non_rotational = 'on'
+
+
+Vagrant.configure("2") do |config|
+
+  
+  config.vm.box = "generic/oracle8"  
+  config.vm.network "public_network", ip: "192.168.68.114"
+  config.vm.hostname = "barnet.localdomain"
+  config.vm.synced_folder ".", "/vagrant"
+
+  
+   config.vm.provider "virtualbox" do |vb|
+  #   # Display the VirtualBox GUI when booting the machine
+     vb.gui = true
+  #
+  #   # Customize the amount of memory on the VM:
+     vb.memory = "8192"
+	 vb.cpus = 2
+	 vb.name = "v_demo_ol8_21c_nonasm"
+	 
+	 vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', '0', '--nonrotational', var_non_rotational]
+
+    unless File.exist?(var_disk1_name)
+      vb.customize ['createhd', '--filename', var_disk1_name, '--size', var_disk1_size * 1024]
+    end
+    vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--nonrotational', var_non_rotational, '--medium', var_disk1_name]
+
+    unless File.exist?(var_disk2_name)
+      vb.customize ['createhd', '--filename', var_disk2_name, '--size', var_disk2_size * 1024]
+    end
+    vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 2, '--device', 0, '--type', 'hdd', '--nonrotational', var_non_rotational, '--medium', var_disk2_name]
+    
+	unless File.exist?(var_disk3_name)
+      vb.customize ['createhd', '--filename', var_disk3_name, '--size', var_disk3_size * 1024]
+    end
+    vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 3, '--device', 0, '--type', 'hdd', '--nonrotational', var_non_rotational, '--medium', var_disk3_name]
+	 
+   end
+  
+   config.vm.provision "shell", inline: <<-SHELL
+    sh /vagrant/scripts/setup.sh
+  SHELL
+end
