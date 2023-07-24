@@ -1,0 +1,96 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+#variables
+var_u01_disk1_name     = 'E:\vagrant\RAC_21c\RAC2\Disks\rac2_asm_u01_disk1.vdi'
+var_u01_disk1_size     = 100
+var_u02_disk1_name     = 'E:\vagrant\RAC_21c\RAC2\Disks\rac2_asm_u02_disk1.vdi'
+var_u02_disk1_size     = 50
+var_u03_disk1_name     = 'E:\vagrant\RAC_21c\RAC2\Disks\rac2_asm_u03_disk1.vdi'
+var_u03_disk1_size     = 50
+var_crs_disk1_name     = 'E:\vagrant\RAC_21c\Shared_Disks\rac_asm_crs_disk1.vdi'
+var_crs_disk2_name     = 'E:\vagrant\RAC_21c\Shared_Disks\rac_asm_crs_disk2.vdi'
+var_crs_disk3_name     = 'E:\vagrant\RAC_21c\Shared_Disks\rac_asm_crs_disk3.vdi'
+var_crs_disk_size      = 6
+var_data_disk1_name    = 'E:\vagrant\RAC_21c\Shared_Disks\rac_asm_data_disk1.vdi'
+var_data_disk_size     = 50
+var_fra_disk1_name     = 'E:\vagrant\RAC_21c\Shared_Disks\rac_asm_fra_disk1.vdi'
+var_fra_disk_size     = 50
+var_non_rotational = 'on'
+
+
+
+
+
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "oraclelinux/8"
+  config.vm.box_url = "https://oracle.github.io/vagrant-projects/boxes/oraclelinux/8.json"
+  config.vm.hostname = "host02.localdomain"
+  config.vm.network "forwarded_port", guest: 1521, host: 1522
+  config.vm.network "forwarded_port", guest: 5500, host: 5502
+  config.vm.network "private_network", ip: "192.168.69.102"          #eth1
+  config.vm.network "private_network", ip: "192.168.1.11", virtualbox__intnet: "private"              #private ip for interconnect          #eth2
+  config.vm.network "public_network", bridge: "TP-Link Wireless USB Adapter"  # public  for internet #change your bridge name based on your host pc settings #eth3
+  config.vm.synced_folder ".", "/vagrant"
+
+ 
+   config.vm.provider "virtualbox" do |vb|
+  #   # Display the VirtualBox GUI when booting the machine
+     vb.gui = true
+  #
+  #   # Customize the amount of memory on the VM:
+     vb.memory = "8192"
+	 vb.cpus = 2
+	 vb.name = "RAC2"	
+	 
+	  vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', '0', '--nonrotational', var_non_rotational]
+
+    unless File.exist?(var_u01_disk1_name)
+      vb.customize ['createhd', '--filename', var_u01_disk1_name, '--size', var_u01_disk1_size * 1024]
+    end
+    vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--nonrotational', var_non_rotational, '--medium', var_u01_disk1_name]
+	
+	unless File.exist?(var_u02_disk1_name)
+      vb.customize ['createhd', '--filename', var_u02_disk1_name, '--size', var_u02_disk1_size * 1024]
+    end
+    vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 2, '--device', 0, '--type', 'hdd', '--nonrotational', var_non_rotational, '--medium', var_u02_disk1_name]
+	
+	unless File.exist?(var_u03_disk1_name)
+      vb.customize ['createhd', '--filename', var_u03_disk1_name, '--size', var_u03_disk1_size * 1024]
+    end
+    vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 3, '--device', 0, '--type', 'hdd', '--nonrotational', var_non_rotational, '--medium', var_u03_disk1_name]
+	
+	unless File.exist?(var_crs_disk1_name)
+      vb.customize ['createhd', '--filename', var_crs_disk1_name, '--size', var_crs_disk_size * 1024, '--format', 'VDI', '--variant', 'Fixed']
+    end
+    vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 4, '--device', 0, '--type', 'hdd', '--medium', var_crs_disk1_name, '--mtype', 'shareable', '--nonrotational', var_non_rotational]
+   
+    
+	unless File.exist?(var_crs_disk2_name)
+      vb.customize ['createhd', '--filename', var_crs_disk2_name, '--size', var_crs_disk_size * 1024, '--format', 'VDI', '--variant', 'Fixed']
+    end
+    vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 5, '--device', 0, '--type', 'hdd', '--medium', var_crs_disk2_name, '--mtype', 'shareable', '--nonrotational', var_non_rotational]
+   
+   
+   unless File.exist?(var_crs_disk3_name)
+      vb.customize ['createhd', '--filename', var_crs_disk3_name, '--size', var_crs_disk_size * 1024, '--format', 'VDI', '--variant', 'Fixed']
+    end
+    vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 6, '--device', 0, '--type', 'hdd', '--medium', var_crs_disk3_name, '--mtype', 'shareable', '--nonrotational', var_non_rotational]
+	
+	unless File.exist?(var_data_disk1_name)
+      vb.customize ['createhd', '--filename', var_data_disk1_name, '--size', var_data_disk_size * 1024, '--format', 'VDI', '--variant', 'Fixed']
+    end
+    vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 7, '--device', 0, '--type', 'hdd', '--medium', var_data_disk1_name, '--mtype', 'shareable', '--nonrotational', var_non_rotational]
+
+    unless File.exist?(var_fra_disk1_name)
+      vb.customize ['createhd', '--filename', var_fra_disk1_name, '--size', var_fra_disk_size * 1024, '--format', 'VDI', '--variant', 'Fixed']
+    end
+    vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 8, '--device', 0, '--type', 'hdd', '--medium', var_fra_disk1_name, '--mtype', 'shareable', '--nonrotational', var_non_rotational]
+
+   end
+   config.vm.provision "shell", inline: <<-SHELL
+    sh /vagrant/scripts/setup.sh
+  SHELL
+end
