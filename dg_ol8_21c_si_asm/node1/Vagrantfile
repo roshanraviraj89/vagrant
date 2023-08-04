@@ -21,7 +21,7 @@ Vagrant.configure("2") do |config|
   config.vm.box_url = "https://oracle.github.io/vagrant-projects/boxes/oraclelinux/8.json"
   #config.vm.box = "generic/oracle8"
   config.vm.hostname = "bath-node1.localdomain"
-  config.vm.network "public_network", ip: "192.168.68.124"
+  config.vm.network "private_network", ip: "192.168.100.70"
   #config.vm.network "public_network", bridge: "TP-Link Wireless USB Adapter"
   config.vm.synced_folder ".", "/vagrant"
 
