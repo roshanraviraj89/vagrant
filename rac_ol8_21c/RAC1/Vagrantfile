@@ -28,7 +28,7 @@ Vagrant.configure("2") do |config|
   config.vm.network "forwarded_port", guest: 5500, host: 5500                                            
   config.vm.network "private_network", ip: "192.168.69.100"          #eth1
   config.vm.network "private_network", ip: "192.168.1.10", virtualbox__intnet: "private"              #private ip for interconnect          #eth2
-  config.vm.network "public_network", bridge: "TP-Link Wireless USB Adapter"  # public  for internet #change your bridge name based on your host pc settings #eth3
+  #config.vm.network "public_network", bridge: "TP-Link Wireless USB Adapter"  # public  for internet #change your bridge name based on your host pc settings #eth3
   config.vm.synced_folder ".", "/vagrant"
 
  
